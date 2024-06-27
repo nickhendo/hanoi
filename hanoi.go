@@ -9,7 +9,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-
+// Create and return a slice of length number, with all elements set to value.
 func repeated(value string, number int) []string {
     arr := make([]string, number)
     for i := 0; i < number; i++ {
@@ -17,8 +17,9 @@ func repeated(value string, number int) []string {
     }
     return arr
 }
-    
 
+// Create a slice of length 2, with each element being another slice. The combined grid, creates a 
+// visual representation of the disk (represented by width) and is returned.
 func buildDisk(width, maxWidth int) [][]string {
     renderWidth := width * 4 + 5
 
@@ -46,6 +47,8 @@ func buildDisk(width, maxWidth int) [][]string {
     return disk
 }
 
+// rodDef is an array of disks. These are then rendered, to create a visual representation of the stack
+// of disks, in combination with the rod sticking out the top of the stack and return the slice.
 func buildRod(rodDef []int, maxWidth int) [][]string {
     var rodImage = [][]string{}
 
@@ -68,6 +71,7 @@ func buildRod(rodDef []int, maxWidth int) [][]string {
 
 }
 
+// Create the visual representations of each rod and print them to the terminal
 func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]string, numLinesToRender, numDisks, fromSelection int) {
     offset := 2
     for i := 0; i < numLinesToRender; i++ {
@@ -78,6 +82,8 @@ func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]
     draw(screen, 0, numLinesToRender + offset, style, false, strings.Repeat("─", 3 * (numDisks * 4 + 7)))
 }
 
+// Draw the given text beginning at the location x, y. If selected is true, we change the styling to purple
+// so that we can represent the selected rod.
 func draw(screen tcell.Screen, x, y int, style tcell.Style, selected bool, text string) {
     col := x
     row := y
@@ -91,6 +97,7 @@ func draw(screen tcell.Screen, x, y int, style tcell.Style, selected bool, text 
         col++
     }
 }
+
 
 func main() {
     f, err := os.OpenFile("hanoi.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
