@@ -63,7 +63,14 @@ func buildRod(rodDef []int, maxWidth int) [][]string {
     var rodImage = [][]string{}
 
     // Rod length is 4 higher than a full stacked rod
-    for i := 0; i < 4 + 2 * (maxWidth - len(rodDef)); i++ {
+    var line = []string{}
+    line = append(line, repeated(" ", maxWidth * 2 + 2)...)
+    line = append(line, "┌")
+    line = append(line, "─")
+    line = append(line, "┐")
+    line = append(line, repeated(" ", maxWidth * 2 + 2)...)
+    rodImage = append(rodImage, line)
+    for i := 0; i < 3 + 2 * (maxWidth - len(rodDef)); i++ {
         var line = []string{}
         line = append(line, repeated(" ", maxWidth * 2 + 2)...)
         line = append(line, "│")
