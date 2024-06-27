@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -37,8 +39,16 @@ func buildDisk(width, maxWidth int) [][]string {
     line2 = append(line2, "│")
     line2 = append(line2, repeated(" ", width * 2 + 2)...)
     line2 = append(line2, strconv.Itoa(width))
-    line2 = append(line2, repeated(" ", width * 2 + 2)...)
+    if width > 9 {
+        line2 = append(line2, repeated(" ", width * 2 + 1)...)
+    } else {
+        line2 = append(line2, repeated(" ", width * 2 + 2)...)
+    }
     line2 = append(line2, "│")
+    if width > 9 {
+        line2 = append(line2, " ")
+    }
+
     line2 = append(line2, repeated(" ", ((maxWidth - width) * 2))...)
 
     disk = append(disk, line1)
@@ -73,7 +83,7 @@ func buildRod(rodDef []int, maxWidth int) [][]string {
 
 // Create the visual representations of each rod and print them to the terminal
 func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]string, numLinesToRender, numDisks, fromSelection int) {
-    offset := 2
+    offset := 4
     for i := 0; i < numLinesToRender; i++ {
         draw(screen, 0, offset + i, style, fromSelection == 1, strings.Join(left[i], ""))
         draw(screen, len(left[i]), offset + i, style, fromSelection == 2, strings.Join(middle[i], ""))
@@ -161,8 +171,13 @@ func main() {
         3: &rightDisks,
     }
 
+    numMoves := 0
+
     for {
         draw(screen, 0, 0, boxStyle, false, "Welcome to Towers of Hanoi!")
+        draw(screen, 0, 1, boxStyle, false, fmt.Sprintf("Optimal number of moves: %d", int(math.Pow(2, float64(numDisks)) - 1)))
+        draw(screen, 0, 2, boxStyle, false, fmt.Sprintf("Number of Moves: %d", numMoves))
+        draw(screen, 0, 3, boxStyle, false, "<Esc> or <Ctrl>+C to exit.")
 
         screen.Show()
 
@@ -211,6 +226,8 @@ func main() {
                 left = buildRod(leftDisks, numDisks)
                 middle = buildRod(middleDisks, numDisks)
                 right = buildRod(rightDisks, numDisks)
+
+                numMoves++
             }
 
             printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks, 0)
