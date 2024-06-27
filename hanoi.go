@@ -90,7 +90,7 @@ func buildRod(rodDef []int, maxWidth int) [][]string {
 
 // Create the visual representations of each rod and print them to the terminal
 func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]string, numLinesToRender, numDisks, fromSelection int) {
-    offset := 4
+    offset := 6
     for i := 0; i < numLinesToRender; i++ {
         draw(screen, 0, offset + i, style, fromSelection == 1, strings.Join(left[i], ""))
         draw(screen, len(left[i]), offset + i, style, fromSelection == 2, strings.Join(middle[i], ""))
@@ -156,7 +156,7 @@ func main() {
     var from int
     var to int
 
-    numDisks := 4
+    numDisks := 5
     numLinesToRender := 2 * numDisks + 4
     
     leftDisks := []int{}
@@ -185,6 +185,7 @@ func main() {
         draw(screen, 0, 1, boxStyle, false, fmt.Sprintf("Optimal number of moves: %d", int(math.Pow(2, float64(numDisks)) - 1)))
         draw(screen, 0, 2, boxStyle, false, fmt.Sprintf("Number of Moves: %d", numMoves))
         draw(screen, 0, 3, boxStyle, false, "<Esc> or <Ctrl>+C to exit.")
+        draw(screen, 0, 4, boxStyle, false, "Use the '1', '2', and '3' keys to select a disk and to then place the disk")
 
         screen.Show()
 
