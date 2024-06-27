@@ -155,8 +155,16 @@ func main() {
     fromSelection := true
     var from int
     var to int
+    
+    args := os.Args
 
     numDisks := 5
+    if len(args) > 1 {
+        numDisks, err = strconv.Atoi(args[1])
+        if err != nil {
+            log.Fatalf("%+v", err)
+        }
+    }
     numLinesToRender := 2 * numDisks + 4
     
     leftDisks := []int{}
