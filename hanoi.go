@@ -68,19 +68,23 @@ func buildRod(rodDef []int, maxWidth int) [][]string {
 
 }
 
-func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]string, numLinesToRender int, numDisks int) {
+func printBoard(screen tcell.Screen, style tcell.Style, left, middle, right [][]string, numLinesToRender, numDisks, fromSelection int) {
     offset := 2
     for i := 0; i < numLinesToRender; i++ {
-        draw(screen, 0, offset + i, style, strings.Join(left[i], ""))
-        draw(screen, len(left[i]), offset + i, style, strings.Join(middle[i], ""))
-        draw(screen, len(left[i]) + len(right[i]), offset + i, style, strings.Join(right[i], ""))
+        draw(screen, 0, offset + i, style, fromSelection == 1, strings.Join(left[i], ""))
+        draw(screen, len(left[i]), offset + i, style, fromSelection == 2, strings.Join(middle[i], ""))
+        draw(screen, len(left[i]) + len(right[i]), offset + i, style, fromSelection == 3, strings.Join(right[i], ""))
     }
-    draw(screen, 0, numLinesToRender + offset, style, strings.Repeat("─", 3 * (numDisks * 4 + 7)))
+    draw(screen, 0, numLinesToRender + offset, style, false, strings.Repeat("─", 3 * (numDisks * 4 + 7)))
 }
 
-func draw(screen tcell.Screen, x, y int, style tcell.Style, text string) {
+func draw(screen tcell.Screen, x, y int, style tcell.Style, selected bool, text string) {
     col := x
     row := y
+
+    if selected {
+        style = tcell.StyleDefault.Foreground(tcell.ColorPurple)
+    }
 
     for _, r := range []rune(text) {
         screen.SetContent(col, row, r, nil, style)
@@ -128,7 +132,7 @@ func main() {
     var from int
     var to int
 
-    numDisks := 9
+    numDisks := 4
     numLinesToRender := 2 * numDisks + 4
     
     leftDisks := []int{}
@@ -142,7 +146,7 @@ func main() {
     middle := buildRod(middleDisks, numDisks)
     right := buildRod(rightDisks, numDisks)
 
-    printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks)
+    printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks, 0)
 
     disks := map[int]*[]int{
         1: &leftDisks,
@@ -151,13 +155,11 @@ func main() {
     }
 
     for {
- 
-        draw(screen, 0, 0, boxStyle, "Welcome to Towers of Hanoi!")
+        draw(screen, 0, 0, boxStyle, false, "Welcome to Towers of Hanoi!")
 
         screen.Show()
 
         ev := screen.PollEvent()
-
 
         switch ev := ev.(type) {
         case *tcell.EventKey:
@@ -169,15 +171,15 @@ func main() {
             if input != "1" && input != "2" && input != "3" {
                 continue
             }
-            log.Printf("input: %s", input)
+
             if fromSelection {
                 from, err = strconv.Atoi(input)
-                log.Printf("firstFrom: %d", from)
 
                 if err != nil {
                     log.Fatalf("%+v", err)
                 }
                 fromSelection = false
+                printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks, from)
                 continue
             } else {
                 to, err = strconv.Atoi(input)
@@ -186,45 +188,25 @@ func main() {
                 }
                 fromSelection = true
             }
-            log.Printf("from: %d", from)
-            log.Printf("to: %d", to)
-            log.Printf("disks: %+v", disks)
-
-            log.Printf("leftDisk: %+v", *disks[1])
-            log.Printf("middleDisk: %+v", *disks[2])
-            log.Printf("rightDisk: %+v", *disks[3])
-            var left [][]string
-            var middle[][]string
-            var right[][]string
 
             if len(*disks[from]) == 0 {
+                printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks, 0)
                 continue
             }
 
             selectedDisk := (*disks[from])[0]
 
             // Ensure there is either no disk on the 'to' rod, or that there is a smaller disk on the rod
-            // if len(*disks[to]) == 0 || selectedDisk < (*disks[to])[0] {
             if len(*disks[to]) == 0 || selectedDisk < (*disks[to])[0] {
-                log.Println("here")
-
                 *disks[from] = (*disks[from])[1:]
                 *disks[to] = append([]int{selectedDisk}, *disks[to]...)
-
-                log.Printf("disks: %+v", disks)
-                log.Printf("leftDisk: %+v", *disks[1])
-                log.Printf("middleDisk: %+v", *disks[2])
-                log.Printf("rightDisk: %+v", *disks[3])
 
                 left = buildRod(leftDisks, numDisks)
                 middle = buildRod(middleDisks, numDisks)
                 right = buildRod(rightDisks, numDisks)
-
-                // fmt.Print(strings.Repeat("\033[F", numLinesToRender + 3))
-                printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks)
             }
 
-            
+            printBoard(screen, boxStyle, left, middle, right, numLinesToRender, numDisks, 0)
         }
     }
 }
